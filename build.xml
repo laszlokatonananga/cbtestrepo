@@ -1,0 +1,60 @@
+<project name="xunit-example" xmlns:jacoco="antlib:org.jacoco.ant">
+	<path id="classpath">
+		<fileset dir="lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="classpath" />
+
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" classpathref="classpath" includeantruntime="false" />
+	</target>
+
+	<target name="jar">
+		<mkdir dir="build/jar" />
+		<jar destfile="build/jar/xunit-example.jar" basedir="build/classes">
+			<manifest>
+				<attribute name="Main-Class" value="com.intland.xunit.Main" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="run" depends="compile">
+		<java jar="build/jar/xunit-example.jar" fork="true" />
+	</target>
+
+	<target name="coverage" depends="compile">
+		<jacoco:coverage destfile="jacoco.exec">
+			<junit fork="true" forkmode="once">
+				<classpath refid="classpath" />
+				<classpath location="build/classes" />
+				<test name="com.intland.xunit.GatherComputerInfoTest" haltonfailure="no" todir="reports/">
+					<formatter type="xml" />
+				</test>
+			</junit>
+		</jacoco:coverage>
+	</target>
+
+	<target name="report" depends="coverage">
+		<jacoco:report>
+			<executiondata>
+				<file file="jacoco.exec" />
+			</executiondata>
+			<structure name="JaCoCo Example">
+				<classfiles>
+					<fileset dir="build/classes" />
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="src" />
+				</sourcefiles>
+			</structure>
+			<xml destfile="reports-jacoco/report.xml" />
+		</jacoco:report>
+	</target>
+</project>
